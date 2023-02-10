@@ -73,12 +73,11 @@ export async function getJobs() {
       jobs {
         id
         title
-        description
       }
     }
   `;
   const {
     data: { jobs },
-  } = await client.query({ query });
+  } = await client.query({ query, fetchPolicy: "network-only" });
   return jobs;
 }
