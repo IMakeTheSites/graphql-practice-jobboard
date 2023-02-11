@@ -15,7 +15,7 @@ const JOB_DETAIL_FRAGMENT = gql`
   }
 `;
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   uri: GRAPHQL_URL,
   cache: new InMemoryCache(),
 });
@@ -24,6 +24,20 @@ const JOB_QUERY = gql`
   query JobQuery($id: ID!) {
     job(id: $id) {
       ...JobDetail
+    }
+  }
+  ${JOB_DETAIL_FRAGMENT}
+`;
+
+export const JOBS_QUERY = gql`
+  query JobsQuery {
+    jobs {
+      id
+      title
+      company {
+        id
+        name
+      }
     }
   }
 `;
@@ -35,6 +49,7 @@ export async function createJob(input) {
         ...JobDetail
       }
     }
+    ${JOB_DETAIL_FRAGMENT}
   `;
   const variables = { input };
   const context = { headers: { Authorization: "Bearer " + getAccessToken() } };
@@ -85,19 +100,4 @@ export async function getJob(id) {
     variables,
   });
   return job;
-}
-
-export async function getJobs() {
-  const query = gql`
-    query JobsQuery {
-      jobs {
-        id
-        title
-      }
-    }
-  `;
-  const {
-    data: { jobs },
-  } = await client.query({ query, fetchPolicy: "network-only" });
-  return jobs;
 }
